@@ -60,3 +60,35 @@ exports.Find = async(req, res)=>{
         });
     }
 }
+
+
+
+exports.Edit = async(req, res)=>{
+    try{
+        let projectObj = req.body;
+        let projectFetch = await project.findOne({_id: req.params.id}, null);
+        if(!projectFetch)
+            res.status(404).json({
+                message: "project not found!"
+            });
+        if(projectObj.tasks)
+            projectFetch.tasks = projectObj.tasks;
+        if(projectObj.projectName)
+            projectFetch.projectName = projectObj.projectName;
+        projectFetch.modifiedOn = Date.now();
+        await projectFetch.save((err)=>{
+            if(!err)
+                console.log("saved!");
+            else
+                console.log("can't be saved!");
+        });
+        res.status(200).json({
+            message: "project updated!",
+            project: projectFetch
+        });
+    }catch(err){
+        res.status(500).json({
+            message: err.message
+        });
+    }
+};

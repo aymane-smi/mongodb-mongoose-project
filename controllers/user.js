@@ -28,6 +28,9 @@ exports.Login = async(req, res)=>{
             res.status(404).json({
                 message: "email address doesn't exist!"
             });
+        user.update({_id: userObj._id}, {$set : {lastLogin: Date.now()}}, ()=>{
+            console.log("lastLogin updated!");
+        });
         let token = jwt.sign({
             id: UserFetch._id,
             email: UserFetch.email,
@@ -36,6 +39,36 @@ exports.Login = async(req, res)=>{
         res.status(200).json({
             message: "user logged in!",
             user: {UserFetch, token}
+        });
+    }catch(err){
+        res.status(500).json({
+            message: err.message
+        });
+    }
+};
+
+exports.Edit = async(req, res)=>{
+    try{
+        let userObj = req.body;
+        let UserFetch = await user.findOne({_id: req.params.id}, null);
+        if(!UserFetch)
+            res.status(404).json({
+                message: "user not found!"
+            });
+        if(userObj.email)
+            UserFetch.email = userObj.email;
+        if(userObj.username)
+            UserFetch.username = userObj.username;
+        UserFetch.modifiedOn = Date.now();
+        await UserFetch.save((err)=>{
+            if(!err)
+                console.log("saved!");
+            else
+                console.log("can't be saved!");
+        });
+        res.status(200).json({
+            message: "user updated!",
+            user: UserFetch
         });
     }catch(err){
         res.status(500).json({
