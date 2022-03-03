@@ -92,3 +92,23 @@ exports.Edit = async(req, res)=>{
         });
     }
 };
+
+exports.Delete = async(req, res)=>{
+    try{
+        const {id} = req.params;
+        const currentProject = await project.findById(id);
+        if(!currentProject)
+            req.status(404).json({
+                message: "project not found!"
+            });
+        await currentProject.remove();
+        res.status(200).json({
+            message: "project deleted!",
+            project: currentProject
+        });
+    }catch(err){
+        res.status(500).json({
+            message: err.message
+        });
+    }
+};
