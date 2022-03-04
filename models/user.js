@@ -1,9 +1,15 @@
 const mongoose     = require("mongoose"),
+      validator    = (val)=>{
+          if(val.includes('@'))
+            return true;
+        return false;
+      },
       userSchema   = new mongoose.Schema({
           username: String,
           email: {
               type: String,
-              unique: true
+              unique: true,
+              validate : {validator, msg : "not an E-mail"}
           },
           createdOn: {
               type: Date,
